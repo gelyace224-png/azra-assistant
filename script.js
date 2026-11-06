@@ -1,17 +1,33 @@
-
 const messages = document.getElementById("messages");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
+const micButton = document.getElementById("micButton");
+const voiceStatus = document.getElementById("voiceStatus");
 
 function addMessage(text, sender) {
     const message = document.createElement("div");
-
     message.classList.add("message", sender);
     message.textContent =
         (sender === "azra" ? "A.Z.R.A.: " : "You: ") + text;
 
     messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
+}
+
+function speak(text) {
+    if (!("speechSynthesis" in window)) {
+        voiceStatus.textContent = "Speech output is not supported.";
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    window.speechSynthesis.speak(speech);
 }
 
 function getResponse(input) {
@@ -63,7 +79,7 @@ function getResponse(input) {
 function sendMessage() {
     const text = userInput.value.trim();
 
-    if (text === "") return;
+    if (!text) return;
 
     addMessage(text, "user");
     userInput.value = "";
@@ -72,15 +88,14 @@ function sendMessage() {
 
     setTimeout(() => {
         addMessage(response, "azra");
+        speak(response);
     }, 400);
 }
 
 sendButton.addEventListener("click", sendMessage);
 
 userInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-        sendMessage();
-    }
+    if (event.key === "Enter") sendMessage();
 });
 
 document.querySelectorAll(".quick").forEach(button => {
@@ -89,3 +104,49 @@ document.querySelectorAll(".quick").forEach(button => {
         sendMessage();
     });
 });
+
+// MICROPHONE SYSTEM
+const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    micButton.addEventListener("click", function() {
+        voiceStatus.textContent = "Listening...";
+        micButton.textContent = "🔴";
+
+        try {
+            recognition.start();
+        } catch (error) {
+            voiceStatus.textContent = "Please try again.";
+            micButton.textContent = "🎙️";
+        }
+    });
+
+    recognition.onresult = function(event) {
+        const spokenText = event.results[0][0].transcript;
+        userInput.value = spokenText;
+        voiceStatus.textContent = "Voice recognized!";
+        micButton.textContent = "🎙️";
+        sendMessage();
+    };
+
+    recognition.onerror = function(event) {
+        voiceStatus.textContent = "Microphone error: " + event.error;
+        micButton.textContent = "🎙️";
+    };
+
+    recognition.onend = function() {
+        micButton.textContent = "🎙️";
+    };
+
+} else {
+    micButton.disabled = true;
+    voiceStatus.textContent =
+        "Speech recognition is not supported by this browser.";
+}
