@@ -4,15 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.Z.R.A. — Personal Assistant</title>
-
-    <meta name="theme-color" content="#071426">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>A.Z.R.A. | Personal AI Assistant</title>
+    <meta name="theme-color" content="#10091f">
     <meta name="apple-mobile-web-app-title" content="A.Z.R.A.">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
     <header>
@@ -37,7 +35,7 @@
                 <div><span>Core System</span><strong>ONLINE</strong></div>
                 <div><span>Interface</span><strong>ACTIVE</strong></div>
                 <div><span>AI Brain</span><strong class="pending">NOT CONNECTED</strong></div>
-                <div><span>Voice System</span><strong class="pending">COMING SOON</strong></div>
+                <div><span>Voice System</span><strong class="pending">TESTING</strong></div>
             </div>
         </section>
 
@@ -51,11 +49,16 @@
             </div>
 
             <div class="input-area">
-                <input id="userInput" type="text"
+                <input id="userInput"
+                    type="text"
                     placeholder="Message A.Z.R.A..."
                     autocomplete="off">
+
                 <button id="sendButton">SEND</button>
+                <button id="micButton" type="button">🎙️</button>
             </div>
+
+            <p id="voiceStatus">Voice system standing by.</p>
 
             <div class="quick-buttons">
                 <button class="quick" data-message="Hello!">Say Hello</button>
