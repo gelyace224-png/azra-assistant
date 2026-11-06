@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.Z.R.A. — Personal Assistant</title>
+
+    <meta name="theme-color" content="#071426">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="A.Z.R.A.">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">A.Z.R.A.</div>
+        <div class="system-status">
+            <span class="status-dot"></span>
+            SYSTEM ONLINE
+        </div>
+    </header>
+
+    <main>
+        <section class="panel assistant">
+            <h1>Welcome Back</h1>
+            <p>Your personal intelligent assistant</p>
+
+            <div class="orb"></div>
+
+            <h2>A.Z.R.A.</h2>
+            <p class="subtitle">Always ready to assist.</p>
+
+            <div class="status-list">
+                <div><span>Core System</span><strong>ONLINE</strong></div>
+                <div><span>Interface</span><strong>ACTIVE</strong></div>
+                <div><span>AI Brain</span><strong class="pending">NOT CONNECTED</strong></div>
+                <div><span>Voice System</span><strong class="pending">COMING SOON</strong></div>
+            </div>
+        </section>
+
+        <section class="panel chat">
+            <h2>Conversation</h2>
+
+            <div id="messages">
+                <div class="message azra">
+                    A.Z.R.A.: Hello! I am A.Z.R.A. How may I assist you today?
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input id="userInput" type="text"
+                    placeholder="Message A.Z.R.A..."
+                    autocomplete="off">
+                <button id="sendButton">SEND</button>
+            </div>
+
+            <div class="quick-buttons">
+                <button class="quick" data-message="Hello!">Say Hello</button>
+                <button class="quick" data-message="What can you do?">Capabilities</button>
+                <button class="quick" data-message="What time is it?">Time</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        PROJECT A.Z.R.A. | PERSONAL AI ASSISTANT
+        <p>DEVELOPMENT VERSION 1.1</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
