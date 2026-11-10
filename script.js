@@ -1,28 +1,95 @@
+
 const messages = document.getElementById("messages");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
 const micButton = document.getElementById("micButton");
 const voiceStatus = document.getElementById("voiceStatus");
 
+// AZRA VOICE SETTINGS
+const voiceSettings = {
+    language: "en-US",
+    rate: 1.0,
+    pitch: 1.0,
+    volume: 1.0
+};
+
+let selectedVoice = null;
+
+// Find a suitable calm English voice
+function chooseVoice() {
+    if (!window.speechSynthesis) return;
+
+    const voices = window.speechSynthesis.getVoices();
+
+    const englishVoices = voices.filter(voice =>
+        voice.lang.toLowerCase().startsWith("en")
+    );
+
+    selectedVoice =
+        englishVoices.find(voice =>
+            /samantha|karen|moira|tessa|serena/i.test(voice.name)
+        ) ||
+        englishVoices.find(voice =>
+            /female/i.test(voice.name)
+        ) ||
+        englishVoices[0] ||
+        null;
+}
+
+if (window.speechSynthesis) {
+    chooseVoice();
+
+    window.speechSynthesis.onvoiceschanged = chooseVoice;
+}
+
+// DISPLAY MESSAGES
 function addMessage(text, sender) {
     const message = document.createElement("div");
+
     message.classList.add("message", sender);
+
     message.textContent =
         (sender === "azra" ? "A.Z.R.A.: " : "You: ") + text;
+
     messages.appendChild(message);
+
     messages.scrollTop = messages.scrollHeight;
 }
 
+// SPEAKING SYSTEM
 function speak(text) {
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis) {
+        voiceStatus.textContent = "Speech output is unavailable.";
+        return;
+    }
 
     window.speechSynthesis.cancel();
 
     const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
+
+    speech.lang = voiceSettings.language;
+    speech.rate = voiceSettings.rate;
+    speech.pitch = voiceSettings.pitch;
+    speech.volume = voiceSettings.volume;
+
+    if (selectedVoice) {
+        speech.voice = selectedVoice;
+    }
+
     window.speechSynthesis.speak(speech);
+
+    voiceStatus.textContent = "A.Z.R.A. is speaking.";
+    
+    speech.onend = function() {
+        voiceStatus.textContent = "Voice system standing by.";
+    };
+
+    speech.onerror = function() {
+        voiceStatus.textContent = "Speech playback encountered an error.";
+    };
 }
 
+// RESPONSE SYSTEM
 function getResponse(input) {
     const text = input.toLowerCase().trim();
 
@@ -45,25 +112,28 @@ function getResponse(input) {
         return "Today's date is " + new Date().toLocaleDateString() + ".";
 
     if (text.includes("how are you"))
-        return "My systems are running smoothly! Thank you for asking.";
+        return "My systems are running smoothly. Thank you for asking.";
 
     if (text.includes("thank you") || text.includes("thanks"))
-        return "You're welcome! I'm always ready to help.";
+        return "You're welcome. I'm always ready to help.";
 
     if (text.includes("help"))
-        return "Of course! Tell me what you need help with.";
+        return "Of course. Tell me what you need help with.";
 
     if (text.includes("bye") || text.includes("goodbye"))
-        return "Goodbye! A.Z.R.A. systems standing by.";
+        return "Goodbye. A.Z.R.A. systems standing by.";
 
     return "I'm still learning how to respond to that. My advanced AI brain is not connected yet.";
 }
 
+// SEND MESSAGE
 function sendMessage() {
     const text = userInput.value.trim();
+
     if (!text) return;
 
     addMessage(text, "user");
+
     userInput.value = "";
 
     const response = getResponse(text);
@@ -77,9 +147,12 @@ function sendMessage() {
 sendButton.addEventListener("click", sendMessage);
 
 userInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") sendMessage();
+    if (event.key === "Enter") {
+        sendMessage();
+    }
 });
 
+// QUICK BUTTONS
 document.querySelectorAll(".quick").forEach(function(button) {
     button.addEventListener("click", function() {
         userInput.value = button.dataset.message;
@@ -87,43 +160,13 @@ document.querySelectorAll(".quick").forEach(function(button) {
     });
 });
 
-// MICROPHONE SYSTEM
-const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+// MICROPHONE BUTTON
+// Uses the iPad's built-in keyboard dictation.
+// It does not use Safari speech recognition.
 
 micButton.addEventListener("click", function() {
-    voiceStatus.textContent = "Microphone button activated!";
+    voiceStatus.textContent =
+        "Use the microphone on your iPad keyboard to dictate.";
 
-    if (!SpeechRecognition) {
-        voiceStatus.textContent =
-            "Speech recognition is not supported in this browser.";
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    voiceStatus.textContent = "Listening...";
-
-    recognition.onresult = function(event) {
-        userInput.value = event.results[0][0].transcript;
-        voiceStatus.textContent = "Voice recognized!";
-        sendMessage();
-    };
-
-    recognition.onerror = function(event) {
-        voiceStatus.textContent = "Microphone error: " + event.error;
-    };
-
-    recognition.onend = function() {
-        micButton.textContent = "🎙️";
-    };
-
-    try {
-        recognition.start();
-    } catch (error) {
-        voiceStatus.textContent = "Could not start microphone.";
-    }
+    userInput.focus();
 });
